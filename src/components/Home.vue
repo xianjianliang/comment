@@ -6,20 +6,25 @@
       </div>
       <el-button type="primary" size="mini" @click="submit()">留言</el-button>
     </div>
+
+    <!-- 留言版主题区域 -->
     <div class="dispalyComments">
       <ul v-for="com1 in comments" :key="com1.id">
         <li>
-          {{ com1.id }} - {{ com1.commentator }} - {{ com1.content }} - {{ com1.time }}
+          <span v-if="com1.isShow" @click="display(com1.id)">-</span>
+          <span v-else @click="hide(com1.id)">+</span>
+          {{ com1.id }} {{ com1.commentator }} ： {{ com1.content }} {{ com1.time }}
           <el-button size="mini" @click="dialogVisibleChange(com1.id)">回复</el-button>
           <el-button size="mini" @click="deleteComment(com1.id)">删除</el-button>
-          <ul v-for="com2 in com1.children" :key="com2.id">
+
+          <ul v-for="com2 in com1.children" :key="com2.id" v-show="com1.isShow">
             <li>{{ com2.id }} - {{ com2.commentator }} - {{ com2.content }} - {{ com2.time }}</li>
           </ul>
         </li>
       </ul>
     </div>
 
-    <!-- 回复留言 -->
+    <!-- 回复留言对话框 -->
     <el-dialog title="添加留言" :visible.sync="addCommmentdialogVisible" width="30%">
       <el-input v-model="addComment" placeholder="请输入回复"></el-input>
       <el-button @click="dialogVisible = false">取 消</el-button>
@@ -37,6 +42,7 @@ export default {
         content: "",
         commentator: "",
         time: "",
+        isShow: true
       },
       addCommmentdialogVisible: false,
       //cid是用来存回复的那个评论的id
@@ -48,13 +54,26 @@ export default {
           commentator: "小明",
           content: "我觉得不行",
           time: "2021-07-10 16:05:10",
+          isShow: true,
           children: [
             {
               id: "0",
               commentator: "小易",
               content: "我觉得OK",
               time: "2021-07-10 17:05:10",
-            }
+            },
+            {
+              id: "1",
+              commentator: "小易",
+              content: "我觉得OK",
+              time: "2021-07-10 17:05:10",
+            },
+            {
+              id: "2",
+              commentator: "小易",
+              content: "我觉得OK",
+              time: "2021-07-10 17:05:10",
+            },
           ],
         },
         {
@@ -62,13 +81,22 @@ export default {
           commentator: "小红",
           content: "我也觉得不行",
           time: "2021-07-10 16:05:10",
-          children: [],
+          isShow: true,
+          children: [
+            {
+              id: "0",
+              commentator: "小易",
+              content: "我觉得OK",
+              time: "2021-07-10 17:05:10",
+            },
+          ],
         },
         {
           id: "3",
           commentator: "小花",
           content: "我觉得行",
           time: "2021-07-10 16:05:10",
+          isShow: true,
           children: [],
         },
         {
@@ -76,6 +104,7 @@ export default {
           commentator: "小李",
           content: "我觉得还行",
           time: "2021-07-10 16:05:10",
+          isShow: true,
           children: [],
         },
       ],
@@ -138,7 +167,7 @@ export default {
       var index = this.searchIndex(this.cid);
       var obj = {
         id: this.comments[index].children.length,
-        commentator: this.data.commentator,
+        commentator: window.sessionStorage.getItem('commentator'),
         content: this.addComment,
         time: this.createTime(),
       };
@@ -152,6 +181,14 @@ export default {
       var index = this.searchIndex(cid);
       this.comments.splice(index, 1);
     },
+    display(id) {
+      var index = this.searchIndex(id)
+      this.comments[index].isShow = false;
+    },
+    hide(id) {
+      var index = this.searchIndex(id)
+      this.comments[index].isShow = true;
+    }
   },
 };
 </script>
@@ -175,7 +212,7 @@ body {
 }
 .comments .el-input {
   margin-bottom: 10px;
-  width: 500px;
+  width: 660px;
 }
 .dispalyComments {
   margin-top: 30px;
@@ -185,5 +222,8 @@ body {
 }
 .dispalyComments ul li ul li {
   padding: 0 50px;
+}
+.dispalyComments ul li .reply {
+  display: block;
 }
 </style>
